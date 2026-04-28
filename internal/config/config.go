@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -9,6 +10,15 @@ import (
 type Config struct {
 	DbUrl           string `json:"db_url"`
 	CurrentUserName string `json:"current_user_name"`
+}
+
+type state struct {
+	cfg *Config
+}
+
+type command struct {
+	name string
+	args []string
 }
 
 const configFileName = ".gatorconfig.json"
@@ -51,4 +61,20 @@ func write(cfg Config) error {
 		return err
 	}
 	return os.WriteFile(path, jsonData, 0644)
+}
+
+func (c *Config) SetUser(name string) error {
+	c.CurrentUserName = name
+	return write(*c)
+}
+
+func handlerLogin(s *state, cmd command) error {
+	if len(cmd.args) == 0 {
+		fmt.Errorf("no username provided")
+	}
+	err := (s.cfg).SetUser(cmd.args[0])
+	if err != nil {
+		return err
+	}
+	return nil
 }
