@@ -25,7 +25,8 @@ func main() {
 	cmds.register("login", handlerLogin)
 
 	if len(os.Args) < 2 {
-		fmt.Errorf("invalid command")
+		fmt.Println("invalid command")
+		os.Exit(1)
 	}
 
 	cmd := command{
@@ -33,11 +34,10 @@ func main() {
 		args: os.Args[2:],
 	}
 
-	cmds.run(s, cmd)
+	err = cmds.run(&s, cmd)
 
-	conf, err = config.Read()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
-	fmt.Printf("%+v\n", conf)
 }
