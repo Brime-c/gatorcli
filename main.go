@@ -1,11 +1,16 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/Brime/gatorcli/internal/config"
+	"github.com/Brime/gatorcli/internal/database"
+	_ "github.com/lib/pq"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -14,7 +19,16 @@ func main() {
 		log.Fatal(err)
 	}
 
+	dbURL := conf.DbUrl
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dbQueries := database.New(db)
+
 	s := state{
+		db:  dbQueries,
 		cfg: &conf,
 	}
 
@@ -40,4 +54,5 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
 }

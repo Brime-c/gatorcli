@@ -2,9 +2,11 @@ package main
 
 import (
 	"github.com/Brime/gatorcli/internal/config"
+	"github.com/Brime/gatorcli/internal/database"
 )
 
 type state struct {
+	db  *database.Queries
 	cfg *config.Config
 }
 
