@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/Brime/gatorcli/internal/database"
@@ -14,11 +13,18 @@ func handlerLogin(s *state, cmd command) error {
 	if len(cmd.args) == 0 {
 		return fmt.Errorf("no username provided")
 	}
-	err := s.cfg.SetUser(cmd.args[0])
+	user, err := s.db.GetUser(context.Background(), cmd.args[0])
+
 	if err != nil {
 		return err
 	}
-	fmt.Printf("username has been set to %s\n", cmd.args[0])
+
+	err = s.cfg.SetUser(user.Name)
+
+	if err != nil {
+		return err
+	}
+	fmt.Printf("username has been set to %s\n", user.Name)
 	return nil
 }
 
@@ -34,14 +40,30 @@ func handlerRegister(s *state, cmd command) error {
 	})
 
 	if err != nil {
-		fmt.Println("username already exists")
-		os.Exit(1)
+		return fmt.Errorf("username already exists")
 	}
 	err = s.cfg.SetUser(user.Name)
 	if err != nil {
 		return err
 	}
 	fmt.Printf("username %s was registered", user.Name)
+	fmt.Printf("%+v\n", user)
+	return nil
+}
+
+func handlerUsers(s *state, cmd command) error {
+	users, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, user := range users {
+		if user == s.cfg.CurrentUserName {
+			fmt.Printf("* %s (current)\n", user)
+		} else {
+			fmt.Printf("* %s\n", user)
+		}
+	}
 	return nil
 }
 
