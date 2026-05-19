@@ -67,8 +67,17 @@ func handlerUsers(s *state, cmd command) error {
 	return nil
 }
 
-func handlgerAgg(s *state, cmd command) error {
+func handlerAgg(s *state, cmd command) error {
 
+	const fixedFeedUrl = "https://www.wagslane.dev/index.xml"
+
+	feed, err := fetchFeed(context.Background(), fixedFeedUrl)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%+v\n", feed)
+	return nil
 }
 func (c *commands) run(s *state, cmd command) error {
 	handler, ok := c.handlers[cmd.name]
