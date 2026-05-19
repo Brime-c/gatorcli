@@ -67,6 +67,9 @@ func handlerUsers(s *state, cmd command) error {
 	return nil
 }
 
+func handlgerAgg(s *state, cmd command) error {
+
+}
 func (c *commands) run(s *state, cmd command) error {
 	handler, ok := c.handlers[cmd.name]
 
