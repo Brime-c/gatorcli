@@ -9,8 +9,6 @@ import (
 	"github.com/Brime/gatorcli/internal/config"
 	"github.com/Brime/gatorcli/internal/database"
 	_ "github.com/lib/pq"
-
-	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -41,6 +39,7 @@ func main() {
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerUsers)
 	cmds.register("agg", handlerAgg)
+	cmds.register("addfeed", handlerAddFeed)
 
 	if len(os.Args) < 2 {
 		fmt.Println("invalid command")
