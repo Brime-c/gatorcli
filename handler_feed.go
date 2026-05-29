@@ -35,3 +35,17 @@ func handlerAddFeed(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerFeeds(s *state, cmd command) error {
+	feeds, err := s.db.ListFeedsWithName(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, feed := range feeds {
+		fmt.Println(feed.FeedName)
+		fmt.Println(feed.Url)
+		fmt.Println(feed.UserName)
+	}
+	return nil
+}
