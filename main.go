@@ -41,7 +41,7 @@ func main() {
 	cmds.register("agg", handlerAgg)
 	cmds.register("addfeed", handlerAddFeed)
 	cmds.register("feeds", handlerFeeds)
-
+	cmds.register("follow", handlerFollow)
 	if len(os.Args) < 2 {
 		fmt.Println("invalid command")
 		os.Exit(1)
