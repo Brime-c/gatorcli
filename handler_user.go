@@ -69,9 +69,9 @@ func handlerUsers(s *state, cmd command) error {
 
 func handlerAgg(s *state, cmd command) error {
 
-	const fixedFeedUrl = "https://www.wagslane.dev/index.xml"
+	const fixedFeedURL = "https://www.wagslane.dev/index.xml"
 
-	feed, err := fetchFeed(context.Background(), fixedFeedUrl)
+	feed, err := fetchFeed(context.Background(), fixedFeedURL)
 	if err != nil {
 		return err
 	}
