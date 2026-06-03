@@ -11,7 +11,7 @@ import (
 
 func handlerFollow(s *state, cmd command) error {
 	if len(cmd.args) == 0 {
-		fmt.Errorf("no command provided")
+		return fmt.Errorf("no command provided")
 	}
 
 	feed, err := s.db.GetFeedByURL(context.Background(), cmd.args[0])
@@ -30,8 +30,26 @@ func handlerFollow(s *state, cmd command) error {
 		UserID:    user.ID,
 		FeedID:    feed.ID,
 	})
+	if err != nil {
+		return err
+	}
 
 	fmt.Println(follow.FeedName)
 	fmt.Println(follow.UserName)
+	return nil
+}
+
+func handlerFollowing(s *state, cmd command) error {
+	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+	follows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
+	if err != nil {
+		return err
+	}
+	for _, follow := range follows {
+		fmt.Println(follow.FeedName)
+	}
 	return nil
 }
