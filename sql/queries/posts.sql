@@ -1,4 +1,4 @@
--- name CreatePost :one
+-- name: CreatePost :one
 
 INSERT INTO posts (id, created_at, updated_at, title, url, description, published_at, feed_id)
 VALUES (
@@ -12,3 +12,13 @@ VALUES (
     $8
 )
 RETURNING *;
+
+
+-- name: GetPostsForUser :many
+
+SELECT posts.* 
+FROM posts
+JOIN feed_follows on posts.feed_id = feed_follows.feed_id
+WHERE feed_follows.user_id = $1
+ORDER BY posts.published_at DESC
+LIMIT $2;
