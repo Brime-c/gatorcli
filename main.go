@@ -45,6 +45,7 @@ func main() {
 	cmds.register("following", middlewareLoggedIn(handlerFollowing))
 	cmds.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 	cmds.register("browse", middlewareLoggedIn(handlerBrowse))
+
 	if len(os.Args) < 2 {
 		fmt.Println("invalid command")
 		os.Exit(1)

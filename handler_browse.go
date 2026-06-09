@@ -8,7 +8,7 @@ import (
 	"github.com/Brime/gatorcli/internal/database"
 )
 
-func handlerBrowse(s *state, cmd command, user database.User) error{
+func handlerBrowse(s *state, cmd command, user database.User) error {
 	limit := 2
 
 	if len(cmd.args) > 0 {
@@ -18,20 +18,20 @@ func handlerBrowse(s *state, cmd command, user database.User) error{
 		}
 		limit = parsedLimit
 	}
-	posts, err := s.db.GetPostsForUser(context.Background(),database.GetPostsForUserParams{
+	posts, err := s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
 		UserID: user.ID,
-		Limit: int32(limit),
+		Limit:  int32(limit),
 	})
 	if err != nil {
 		return err
 	}
 
-	for _, post := posts {
+	for _, post := range posts {
 		fmt.Println("Title:", post.Title)
 		fmt.Println("URL:", post.Url)
 		fmt.Println("Published:", post.PublishedAt)
 		fmt.Println()
 	}
-	
+
 	return nil
 }
