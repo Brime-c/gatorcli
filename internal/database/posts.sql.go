@@ -14,7 +14,6 @@ import (
 )
 
 const createPost = `-- name: CreatePost :one
-
 INSERT INTO posts (id, created_at, updated_at, title, url, description, published_at, feed_id)
 VALUES (
     $1,
@@ -40,6 +39,8 @@ type CreatePostParams struct {
 	FeedID      uuid.UUID
 }
 
+// CreatePost inserts a newly scraped blog post or article into the database.
+// It returns the fully populated post record.
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
 	row := q.db.QueryRowContext(ctx, createPost,
 		arg.ID,
@@ -66,7 +67,6 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 }
 
 const getPostsForUser = `-- name: GetPostsForUser :many
-
 SELECT posts.id, posts.created_at, posts.updated_at, posts.title, posts.url, posts.description, posts.published_at, posts.feed_id 
 FROM posts
 JOIN feed_follows on posts.feed_id = feed_follows.feed_id
@@ -80,6 +80,9 @@ type GetPostsForUserParams struct {
 	Limit  int32
 }
 
+// GetPostsForUser retrieves a chronological timeline of posts for a specific user.
+// It joins the posts and feed_follows tables on feed_id, filtering for feeds
+// followed by the target user, and orders the results by publication date (newest first).
 func (q *Queries) GetPostsForUser(ctx context.Context, arg GetPostsForUserParams) ([]Post, error) {
 	rows, err := q.db.QueryContext(ctx, getPostsForUser, arg.UserID, arg.Limit)
 	if err != nil {

@@ -13,7 +13,6 @@ import (
 )
 
 const createFeedFollow = `-- name: CreateFeedFollow :one
-
 WITH inserted_feed_follow AS (
     INSERT INTO feed_follows(id, created_at, updated_at, user_id, feed_id)
     VALUES(
@@ -52,6 +51,9 @@ type CreateFeedFollowRow struct {
 	UserName  string
 }
 
+// CreateFeedFollow inserts a new follow relationship between a user and a feed.
+// It uses a Common Table Expression (CTE) to write the follow record first,
+// then joins the feeds and users tables to return human-readable names alongside the IDs.
 func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowParams) (CreateFeedFollowRow, error) {
 	row := q.db.QueryRowContext(ctx, createFeedFollow,
 		arg.ID,
@@ -74,7 +76,6 @@ func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowPara
 }
 
 const deleteFeedByUserFeed = `-- name: DeleteFeedByUserFeed :exec
-
 DELETE FROM feed_follows
 WHERE user_id = $1 AND feed_id = $2
 `
@@ -84,13 +85,14 @@ type DeleteFeedByUserFeedParams struct {
 	FeedID uuid.UUID
 }
 
+// DeleteFeedByUserFeed removes a specific feed follow record.
+// This effectively unsubscribes a user from the target feed.
 func (q *Queries) DeleteFeedByUserFeed(ctx context.Context, arg DeleteFeedByUserFeedParams) error {
 	_, err := q.db.ExecContext(ctx, deleteFeedByUserFeed, arg.UserID, arg.FeedID)
 	return err
 }
 
 const getFeedFollowsForUser = `-- name: GetFeedFollowsForUser :many
-
 SELECT
     feed_follows.id, feed_follows.created_at, feed_follows.updated_at, feed_follows.user_id, feed_follows.feed_id,
     feeds.name AS feed_name,
@@ -111,6 +113,8 @@ type GetFeedFollowsForUserRow struct {
 	UserName  string
 }
 
+// GetFeedFollowsForUser retrieves all feed follow records for a specific user,
+// joining on the feeds and users tables to include names in the final results.
 func (q *Queries) GetFeedFollowsForUser(ctx context.Context, userID uuid.UUID) ([]GetFeedFollowsForUserRow, error) {
 	rows, err := q.db.QueryContext(ctx, getFeedFollowsForUser, userID)
 	if err != nil {

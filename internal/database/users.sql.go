@@ -30,6 +30,8 @@ type CreateUserParams struct {
 	Name      string
 }
 
+// CreateUser inserts a new user record into the database.
+// It returns the full row of the newly created user, including automatic timestamps and UUIDs.
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, createUser,
 		arg.ID,
@@ -51,6 +53,8 @@ const deleteUsers = `-- name: DeleteUsers :exec
 DELETE FROM users
 `
 
+// DeleteUsers purges all users from the database.
+// This is a destructive operation used primarily by the developer 'reset' command.
 func (q *Queries) DeleteUsers(ctx context.Context) error {
 	_, err := q.db.ExecContext(ctx, deleteUsers)
 	return err
@@ -61,6 +65,8 @@ SELECT id, created_at, updated_at, name FROM users
 where name = $1
 `
 
+// GetUser retrieves a single user's details by their unique name.
+// This is primarily used during login to verify an account exists.
 func (q *Queries) GetUser(ctx context.Context, name string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUser, name)
 	var i User
@@ -77,6 +83,8 @@ const getUsers = `-- name: GetUsers :many
 SELECT name from users
 `
 
+// GetUsers retrieves a list of all registered usernames.
+// This is used to output a list of users currently registered with the application.
 func (q *Queries) GetUsers(ctx context.Context) ([]string, error) {
 	rows, err := q.db.QueryContext(ctx, getUsers)
 	if err != nil {

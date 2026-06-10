@@ -34,6 +34,8 @@ type CreateFeedParams struct {
 	UserID    uuid.UUID
 }
 
+// CreateFeed inserts a new RSS feed into the database.
+// It returns the complete row of the newly registered feed.
 func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, error) {
 	row := q.db.QueryRowContext(ctx, createFeed,
 		arg.ID,
@@ -60,6 +62,8 @@ const deleteFeeds = `-- name: DeleteFeeds :exec
 DELETE FROM feeds
 `
 
+// DeleteFeeds purges all feeds from the database.
+// This is a destructive operation used by the developer 'reset' command.
 func (q *Queries) DeleteFeeds(ctx context.Context) error {
 	_, err := q.db.ExecContext(ctx, deleteFeeds)
 	return err
@@ -70,6 +74,8 @@ SELECT id, created_at, updated_at, name, url, user_id, last_fetched_at FROM feed
 WHERE URL = $1
 `
 
+// GetFeedByURL retrieves a single feed record by its source URL.
+// This is primarily used to resolve a URL to a feed ID during a 'follow' or 'unfollow' action.
 func (q *Queries) GetFeedByURL(ctx context.Context, url string) (Feed, error) {
 	row := q.db.QueryRowContext(ctx, getFeedByURL, url)
 	var i Feed
@@ -86,12 +92,14 @@ func (q *Queries) GetFeedByURL(ctx context.Context, url string) (Feed, error) {
 }
 
 const getNextFeedToFetch = `-- name: GetNextFeedToFetch :one
-
 SELECT id, created_at, updated_at, name, url, user_id, last_fetched_at FROM feeds
 ORDER BY last_fetched_at ASC NULLS FIRST
 LIMIT 1
 `
 
+// GetNextFeedToFetch selects the single feed that is most due to be scraped.
+// It returns the feed with the oldest 'last_fetched_at' timestamp,
+// prioritizing feeds that have never been fetched (which have NULL values).
 func (q *Queries) GetNextFeedToFetch(ctx context.Context) (Feed, error) {
 	row := q.db.QueryRowContext(ctx, getNextFeedToFetch)
 	var i Feed
@@ -121,6 +129,8 @@ type ListFeedsWithNameRow struct {
 	UserName string
 }
 
+// ListFeedsWithName retrieves all registered feeds, joining them with the users
+// table to include the username of the user who registered each feed.
 func (q *Queries) ListFeedsWithName(ctx context.Context) ([]ListFeedsWithNameRow, error) {
 	rows, err := q.db.QueryContext(ctx, listFeedsWithName)
 	if err != nil {
@@ -145,12 +155,13 @@ func (q *Queries) ListFeedsWithName(ctx context.Context) ([]ListFeedsWithNameRow
 }
 
 const markFeedFetched = `-- name: MarkFeedFetched :exec
-
 UPDATE feeds
 SET last_fetched_at = NOW(), updated_at = NOW()
 WHERE id = $1
 `
 
+// MarkFeedFetched updates a feed's last_fetched_at and updated_at timestamps to the current time.
+// This signals to the scheduler that this feed has just been successfully crawled.
 func (q *Queries) MarkFeedFetched(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, markFeedFetched, id)
 	return err
